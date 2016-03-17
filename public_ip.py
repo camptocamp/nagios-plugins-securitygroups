@@ -14,13 +14,14 @@ class sg_public:
         self.__region  = args.region
         self.__port    = args.port
         self.__sgid    = args.security_group_id
+        self.__filter  = args.filters.split(',')
 
         session = boto3.session.Session(
                 profile_name = self.__profile,
                 region_name  = self.__region
                 )
 
-        self.__pub_ips= []
+        self.__pub_ips= self.__filter
         self.__sg_eips = []
 
         self.out_status = 0
@@ -92,6 +93,7 @@ if __name__ == '__main__':
     parser.add_argument('--profile', '-p', help='Pass AWS profile name.', default='default')
     parser.add_argument('--region', '-r',   help='Set AWS region.', default='eu-west-1')
     parser.add_argument('--port', '-P',   help='Specify port.', default=25, type=int)
+    parser.add_argument('--filters', '-F',   help='Manually ignore those IPs (ip1,ip2,ip3,...).', default='')
     parser.add_argument('--security-group-id', '-s', help='', required=True)
 
     args = parser.parse_args()
