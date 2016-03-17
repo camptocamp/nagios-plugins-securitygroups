@@ -12,6 +12,7 @@ class sg_eip:
         self.__debug   = args.debug
         self.__profile = args.profile
         self.__region  = args.region
+        self.__port    = args.port
         self.__sgid    = args.security_group_id
 
         session = boto3.session.Session(
@@ -49,6 +50,8 @@ class sg_eip:
                 )
         sg = sg['SecurityGroups'][0]
         for item in sg['IpPermissions']:
+            if item['FromPort'] != self.__port and item['ToPort'] != self.__port:
+                continue
             for ip in item['IpRanges']:
                 self.__sg_eips.append(ip['CidrIp'].split('/')[0])
 
@@ -79,6 +82,7 @@ if __name__ == '__main__':
     parser.add_argument('--debug',  '-d',   help='Set verbosity level.', default=0, type=int)
     parser.add_argument('--profile', '-p', help='Pass AWS profile name.', default='default')
     parser.add_argument('--region', '-r',   help='Set AWS region.', default='eu-west-1')
+    parser.add_argument('--port', '-P',   help='Specify port.', default=25, type=int)
     parser.add_argument('--security-group-id', '-s', help='', required=True)
 
     args = parser.parse_args()
