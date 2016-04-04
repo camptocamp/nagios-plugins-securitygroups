@@ -13,6 +13,7 @@ class unused_sg:
         self.__profile = args.profile
         self.__region  = args.region
         self.__clean   = args.clean
+        self.__filters = args.filters.split(',')
 
         session = boto3.session.Session(
                 profile_name = self.__profile,
@@ -83,7 +84,7 @@ class unused_sg:
         '''
         Ensure no unused security group is present
         '''
-        diff = list(set(self.__sgs.keys()) - set(self.__sg_instances))
+        diff = list(set(self.__sgs.keys()) - set(self.__sg_instances) - set(self.__filters))
         if (len(diff) != 0):
             self.out_msg = '%i Unused security groups found' % len(diff)
             self.out_status = 2
@@ -104,6 +105,7 @@ if __name__ == '__main__':
     parser.add_argument('--profile', '-p', help='Pass AWS profile name.', default='default')
     parser.add_argument('--region', '-r',   help='Set AWS region.', default='eu-west-1')
     parser.add_argument('--clean',  help='Clean unused security groups', action='store_const', const=True)
+    parser.add_argument('--filters', '-F', help='Coma separated list of security groups ID to ignore (sg1,sg2,sg3,...).', default='')
 
     args = parser.parse_args()
 
