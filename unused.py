@@ -63,7 +63,18 @@ class unused_sg:
         '''
         self.__print('Getting instances')
         reservations = self.__ec2_client.describe_instances(
-                MaxResults=200
+                MaxResults=200,
+                Filters=[
+                    {
+                        'Name': 'instance-state-name',
+                        'Values': [
+                            'running',
+                            'shutting-down',
+                            'stopping',
+                            'stopped',
+                            ],
+                        },
+                    ]
                 )
         for reservation in reservations['Reservations']:
             for instance in reservation['Instances']:
