@@ -28,10 +28,12 @@ class unused_sg:
 
         self.__ec2_client = session.client('ec2')
         self.__elb_client = session.client('elb')
+        self.__elbv2_client = session.client('elbv2')
 
         self.__get_security_groups()
         self.__get_instances_groups()
         self.__get_elbs_groups()
+        self.__get_elbv2s_groups()
         self.__sg_instances = [item for sublist in self.__sg_instances for item in sublist]
         if self.__clean:
             self.__clean_sgs()
@@ -89,6 +91,16 @@ class unused_sg:
         elbs = self.__elb_client.describe_load_balancers()
         for elb in elbs['LoadBalancerDescriptions']:
             self.__sg_instances.append(elb['SecurityGroups'])
+
+    def __get_elbv2s_groups(self):
+        '''
+        List all Security groups associated to ELBv2s (aka ALB and NLB)
+        '''
+        self.__print('Getting ELBv2s')
+        elbv2s = self.__elbv2_client.describe_load_balancers()
+        for elb in elbv2s['LoadBalancers']:
+            if elb['Type'] == 'application':
+                self.__sg_instances.append(elb['SecurityGroups'])
 
 
     def __check(self):
