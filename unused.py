@@ -27,11 +27,13 @@ class unused_sg:
         self.out_msg = 'SG: no unused SG'
 
         self.__ec2_client = session.client('ec2')
+        self.__rds_client = session.client('rds')
         self.__elb_client = session.client('elb')
         self.__elbv2_client = session.client('elbv2')
 
         self.__get_security_groups()
         self.__get_instances_groups()
+        self.__get_dbinstances_groups()
         self.__get_elbs_groups()
         self.__get_elbv2s_groups()
         self.__sg_instances = [item for sublist in self.__sg_instances for item in sublist]
@@ -81,6 +83,15 @@ class unused_sg:
         for reservation in reservations['Reservations']:
             for instance in reservation['Instances']:
                 self.__sg_instances.append([x['GroupId'] for x in instance['SecurityGroups']])
+
+    def __get_dbinstances_groups(self):
+        '''
+        List all security groups associated to RDS instances
+        '''
+        self.__print('Getting RDS instances')
+        result = self.__rds_client.describe_db_instances()
+        for instance in result['DBInstances']:
+            self.__sg_instances.append([x['VpcSecurityGroupId'] for x in instance['VpcSecurityGroups']])
 
 
     def __get_elbs_groups(self):
